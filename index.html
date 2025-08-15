@@ -4,9 +4,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Sales Counter</title>
+  <title>Raport Dzienny</title>
   <meta name="theme-color" content="#1a73e8">
-  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="icons/icon-192.png" sizes="192x192">
   <style>
     :root{
@@ -14,19 +14,23 @@
     }
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);}
-    .app{max-width:540px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
-    header{position:sticky;top:0;background:var(--card);padding:14px 16px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:10px}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;
+      background:
+        radial-gradient(rgba(26,115,232,0.06) 1px, transparent 1px) 0 0/22px 22px,
+        radial-gradient(rgba(52,168,83,0.05) 1px, transparent 1px) 11px 11px/22px 22px,
+        linear-gradient(#f7f7f8, #f7f7f8);
+      color:var(--text);
+    }
+    .app{max-width:640px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
+    header{position:sticky;top:0;background:var(--card);padding:14px 16px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:10px;box-shadow:0 8px 20px rgba(0,0,0,.08);z-index:9999;}
     header h1{font-size:1.25rem;margin:0;font-weight:700;letter-spacing:.2px}
-    .chip{margin-left:auto;display:flex;align-items:center;gap:8px;background:#eef3fd;color:#1a73e8;padding:8px 12px;font-weight:600}
-    .chip button{all:unset;cursor:pointer;padding:2px 6px}
-    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:0}
-    @media (max-width: 480px){ .grid{grid-template-columns:1fr} }
-    .card{cursor:pointer;background:var(--card);border:1px solid #eee;padding:16px;display:flex;flex-direction:column;gap:12px;aspect-ratio:1/1;justify-content:center}
-    .product{display:flex;align-items:center;gap:12px;font-size:1.05rem}
-    .name{font-weight:700}
-    .count{margin-left:auto;font-weight:800}
-    .toolbar{position:sticky;bottom:0;background:var(--card);padding:12px 16px;border-top:1px solid #eee;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .chip{margin-left:auto;display:flex;align-items:center;gap:8px;background:#eef3fd;color:#1a73e8;padding:8px 12px;font-weight:600; cursor:pointer}
+    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:0}
+    .card{cursor:pointer;background:var(--card);border:1px solid #eee;padding:16px;display:flex;flex-direction:column;gap:12px;aspect-ratio:1/1;justify-content:center;position:relative;min-width:0; }
+    .product{display:flex;align-items:center;justify-content:center;width:100%;height:100%;text-align:center}
+    .name{font-weight:700;font-size:1em;line-height:1.15 word-break:break-word; overflow-wrap:anywhere; max-width:100%; }
+    .count{position:absolute;top:8px;right:10px;font-weight:800}
+    .toolbar{position:sticky;bottom:0;background:var(--card);padding:12px 16px;border-top:1px solid #eee;display:flex;gap:10px;align-items:center;flex-wrap:wrap;box-shadow:0 -8px 20px rgba(0,0,0,.08)}
     .btn{border:none;padding:14px 16px;font-weight:700;cursor:pointer;background:#e0e0e0;color:var(--text)}
     .btn.primary{background:#1a73e8;color:#fff}
     .btn.secondary{background:#eef3fd;color:#1a73e8}
@@ -39,7 +43,9 @@
     .sheet{padding:16px;background:#fff}
     .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
     input[type="text"], input[type="password"]{flex:1;border:1px solid #e0e0e0;padding:12px 14px;font-size:1rem}
-    input[type="color"], select{border:1px solid #e0e0e0;padding:10px 12px;font-size:1rem}
+    /* separate padding rules so color input has no padding */
+    input[type="color"]{border:1px solid #e0e0e0;padding:0 !important;font-size:1rem;height:40px;width:44px}
+    select{border:1px solid #e0e0e0;padding:10px 12px !important;font-size:1rem}
     .list{display:flex;flex-direction:column;gap:8px;margin-top:12px;max-height:38vh;overflow:auto}
     .item{display:flex;align-items:center;gap:12px;border:1px solid #eee;padding:10px 12px;background:#fafafa}
     .item input{width:40%}
@@ -49,34 +55,57 @@
     .badge{font-size:.8rem;font-weight:700;padding:4px 8px}
     .badge.add{background:#e6f4ea;color:#34a853}
     .badge.sub{background:#fde9ea;color:#ea4335}
+    /* Hide export/import via CSS only */
+    #exportBtn, label[for="importFile"] { display:none !important; }
+    /* Toast */
+    .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%) translateY(12px);
+      background:#202124;color:#fff;padding:10px 14px;border-radius:0;
+      box-shadow:0 8px 20px rgba(0,0,0,.18);opacity:0;pointer-events:none;
+      transition:opacity .18s ease, transform .18s ease;z-index:10000;}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  
+    .menu-btn{border:none;background:#f1f3f4;color:#202124;font-weight:800;padding:10px 12px;cursor:pointer}
+    .menu-btn:active{transform:translateY(1px)}
+    .menu-list{display:flex;flex-direction:column;gap:10px}
+    .menu-list .btn{width:100%; text-align:left}
+
   </style>
 </head>
 <body>
   <div class="app" id="app">
     <header>
-      <h1>Sales Counter</h1>
+      <button id="menuBtn" class="menu-btn" aria-label="Menu" title="Menu">☰</button>
+      <h1>Raport Dzienny</h1>
       <span id="today" class="pill">--</span>
-      <span class="chip">
+      <span class="chip" id="modeToggle" role="button" tabindex="0" title="Przytrzymaj, aby włączyć odejmowanie (PIN opcjonalny). Kliknij, aby wrócić do dodawania.">
         <span id="modeLabel">Tryb: Dodawanie</span>
-        <button id="toggleMode" title="Przełącz tryb (odejmowanie wymaga PIN + przytrzymanie)">➕/➖</button>
       </span>
     </header>
 
     <main class="grid" id="grid"></main>
-
-    <section class="toolbar">
-      <div class="tools">
-        <button class="btn secondary" id="quickUndo">Cofnij</button>
-        <button class="btn ghost" id="settingsBtn">Ustawienia</button>
-        <button class="btn ghost" id="historyBtn">Historia</button>
-        <button class="btn ghost" id="exportBtn">Eksport CSV</button>
-        <label class="btn ghost" for="importFile" style="cursor:pointer">Import CSV</label>
-        <input id="importFile" type="file" accept=".csv,text/csv" style="display:none">
-      </div>
-      <span class="spacer"></span>
-      <button class="btn primary" id="resetDay">Nowy dzień</button>
-    </section>
   </div>
+
+  
+  <!-- Navigation dialog (hamburger menu) -->
+  <dialog id="navDlg">
+    <form method="dialog">
+      <div class="sheet">
+        <h3 style="margin:6px 0 12px 0;">Menu</h3>
+        <div class="menu-list">
+          <button class="btn secondary" id="quickUndo" type="button">Cofnij</button>
+          <button class="btn ghost" id="settingsBtn" type="button">Ustawienia</button>
+          <button class="btn ghost" id="copyBtn" type="button">Kopiuj wyniki</button>
+          <button class="btn secondary" id="installBtn" type="button">Zainstaluj</button>
+          <label class="btn ghost" for="importFile" style="cursor:pointer">Import CSV</label>
+          <input id="importFile" type="file" accept=".csv,text/csv" style="display:none">
+          <button class="btn primary" id="resetDay" type="button">Nowy dzień</button>
+        </div>
+      </div>
+      <div class="footer">
+        <button class="btn primary" value="close">Zamknij</button>
+      </div>
+    </form>
+  </dialog>
 
   <!-- Settings dialog -->
   <dialog id="settingsDlg">
@@ -97,46 +126,114 @@
           <span id="verSettings" class="pill">v?</span>
         </div>
         <div class="row">
+          <label class="small">Imię i nazwisko:</label>
+          <input type="text" id="empName" placeholder="np. Jan Kowalski">
+        </div>
+        <div class="row">
           <label class="small">PIN do odejmowania:</label>
           <input type="password" id="pin" placeholder="(opcjonalny)">
           <button type="button" class="btn secondary" id="savePin">Zapisz PIN</button>
         </div>
         <div class="row">
-          <label class="small">Duże kafelki:</label>
-          <button type="button" class="btn ghost" id="toggleSize">Przełącz</button>
-          <span class="small" id="sizeState"></span>
+          <label class="small">Godzina resetu (admin):</label>
+          <input type="time" id="resetTime" value="19:19" disabled>
+          <button type="button" class="btn secondary" id="unlockReset">Odblokuj</button>
+        </div>
+        <div class="row">
+          <label class="small">Format kopiowania:</label>
+          <select id="smsFormatSelect">
+            <option value="line">Jedna linia</option>
+            <option value="multi">Wiele linii</option>
+          </select>
         </div>
 
-        <p class="hint">Zmiany zapisują się automatycznie (localStorage). Liczniki są dzienne.</p>
+        <p class="hint">Zmiany zapisują się automatycznie (localStorage). Liczniki są dzienne (strefa czasowa: Europe/Warsaw).</p>
       </div>
       <div class="footer">
-        <button class="btn ghost" value="cancel">Zamknij</button>
+        <button class="btn ghost" id="settingsCancel" value="cancel">Anuluj</button>
+        <button class="btn primary" id="settingsSave" type="button">Zapisz zmiany</button>
       </div>
     </form>
   </dialog>
 
-  <!-- History dialog -->
-  <dialog id="historyDlg">
+  <!-- Install help dialog -->
+  <dialog id="installHelpDlg">
     <form method="dialog">
       <div class="sheet">
-        <h3 style="margin:6px 0 8px 0;">Historia dni</h3>
-        <div id="historyList" class="list"></div>
+        <h3 style="margin:6px 0 8px 0;">Jak zainstalować</h3>
+        <ol style="margin:0 0 12px 18px; padding:0;">
+          <li>W Chrome stuknij <b>⋮</b> w prawym górnym rogu.</li>
+          <li>Wybierz <b>Zainstaluj aplikację</b> (albo <b>Dodaj do ekranu głównego</b>).</li>
+          <li>Potwierdź. Ikona pojawi się na ekranie głównym.</li>
+        </ol>
+        <p class="small">Jeśli opcji nie ma, odśwież stronę po pierwszym wejściu (rejestruje się tryb offline) i spróbuj ponownie.</p>
       </div>
       <div class="footer">
-        <button class="btn ghost" value="cancel">Zamknij</button>
+        <button class="btn primary" value="ok">OK</button>
       </div>
     </form>
   </dialog>
 
+  <div id="toast" class="toast" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- jQuery CDN + lightweight fallback -->
   <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
   <script>
-    const APP_VERSION = 'v2-r14';
+    // Lightweight jQuery fallback (only features used in this app)
+    (function(){
+      if (window.jQuery) return; // CDN loaded
+      function ready(fn){ if(document.readyState!='loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
+      function Dollar(sel){
+        if (typeof sel === 'function'){ ready(sel); return; }
+        if (sel === document || sel === window){ this.els = [sel]; return; }
+        if (sel instanceof Element){ this.els = [sel]; return; }
+        if (typeof sel === 'string'){
+          const s = sel.trim();
+          if (s.startsWith('<') && s.endsWith('>')){
+            const t = document.createElement('template'); t.innerHTML = s;
+            this.els = [t.content.firstElementChild];
+            return;
+          }
+          this.els = Array.from(document.querySelectorAll(sel)); return;
+        }
+        this.els = [];
+      }
+      Dollar.prototype.text = function(v){ if(v===undefined) return this.els[0]?.textContent; this.els.forEach(e=>e.textContent=v); return this; };
+      Dollar.prototype.val = function(v){ if(v===undefined) return this.els[0]?.value; this.els.forEach(e=>e.value=v); return this; };
+      Dollar.prototype.empty = function(){ this.els.forEach(e=>e.innerHTML=''); return this; };
+      Dollar.prototype.append = function(node){ this.els.forEach(e=> e.append(node instanceof Dollar? node.els[0] : node)); return this; };
+      Dollar.prototype.closest = function(sel){ return new Dollar(this.els[0]?.closest(sel)); };
+      Dollar.prototype.data = function(name, val){ const el=this.els[0]; const key=name.replace(/([A-Z])/g,'-$1').toLowerCase(); if(!el) return val===undefined?undefined:this; if(val===undefined) return el.dataset[name]||el.getAttribute('data-'+key); el.dataset[name]=val; return this; };
+      Dollar.prototype.trigger = function(type){ this.els.forEach(e=> e.dispatchEvent(new Event(type,{bubbles:true}))); return this; };
+      Dollar.prototype.toggleClass = function(cls, on){ const classes=cls.split(/\s+/).filter(Boolean); this.els.forEach(e=> classes.forEach(c=> on ? e.classList.add(c) : e.classList.remove(c))); return this; };
+      Dollar.prototype.on = function(evt, sel, handler){
+        if (typeof sel === 'function'){ handler = sel; sel = null; }
+        this.els.forEach(el => {
+          el.addEventListener(evt, function(e){
+            if (!sel){ handler.call(e.target, e); return; }
+            const match = e.target.closest(sel);
+            if (match && el.contains(match)){ handler.call(match, e); }
+          });
+        });
+        return this;
+      };
+      function $(sel){ return new Dollar(sel); }
+      $.fn = Dollar.prototype;
+      window.$ = window.jQuery = $;
+    })();
+  </script>
+
+  <script>
+    const APP_VERSION = '1.0.4';
 
     // --- Keys ---
     const LS_PRODUCTS = 'sc_products_v1';
     const LS_PIN = 'sc_pin_v1';
-    const LS_SIZE = 'sc_large_tiles_v1';
-    const countsKey = (dateStr) => 'sc_counts_' + (dateStr || new Date().toISOString().slice(0,10));
+    const LS_AUTORESET = 'sc_auto_reset_v1';
+    const LS_RESET_TIME = 'sc_reset_time_v1';
+    const LS_EMP = 'sc_emp_v1';
+    const LS_SMSFMT = 'sc_smsfmt_v1';
+    const countsKey = (dateStr) => 'sc_counts_' + (dateStr || warsawISO());
 
     // --- Utils ---
     function contrastColor(hex){
@@ -149,6 +246,23 @@
         return lum > 0.6 ? '#202124' : '#ffffff';
       }catch(e){ return '#202124'; }
     }
+
+    // Time helpers (Europe/Warsaw)
+    function warsawParts(){
+      const tz = 'Europe/Warsaw';
+      const d = new Date();
+      const date = new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(d);
+      const time = new Intl.DateTimeFormat('en-GB',{timeZone:tz,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).formatToParts(d);
+      const y = +date.find(p=>p.type==='year').value;
+      const m = +date.find(p=>p.type==='month').value;
+      const dd = +date.find(p=>p.type==='day').value;
+      const hh = +time.find(p=>p.type==='hour').value;
+      const mi = +time.find(p=>p.type==='minute').value;
+      const ss = +time.find(p=>p.type==='second').value;
+      return {y,m,dd,hh,mi,ss};
+    }
+    function warsawISO(){ const {y,m,dd}=warsawParts(); const mm=(''+m).padStart(2,'0'); const d=(''+dd).padStart(2,'0'); return `${y}-${mm}-${d}`; }
+    function warsawDateLabel(){ return new Intl.DateTimeFormat('pl-PL',{timeZone:'Europe/Warsaw'}).format(new Date()); }
 
     // --- Data ---
     function loadProducts(){
@@ -170,10 +284,6 @@
       return raw ? JSON.parse(raw) : {};
     }
     function saveCounts(map){ localStorage.setItem(countsKey(), JSON.stringify(map)); }
-
-    function allDates(){
-      return Object.keys(localStorage).filter(k => k.startsWith('sc_counts_')).map(k => k.replace('sc_counts_','')).sort().reverse();
-    }
 
     // --- UI ---
     let mode = 'add'; // 'add' | 'sub'
@@ -214,7 +324,10 @@
         `);
         $list.append($row);
       });
-      $('#sizeState').text(localStorage.getItem(LS_SIZE)==='1' ? 'Włączone' : 'Wyłączone');
+      // preload settings values
+      $('#empName').val(localStorage.getItem(LS_EMP) || '');
+      $('#smsFormatSelect').val(localStorage.getItem(LS_SMSFMT) || 'line');
+      $('#resetTime').val(localStorage.getItem(LS_RESET_TIME) || '19:19').prop('disabled', true);
     }
 
     function updateModeUI(){
@@ -243,16 +356,227 @@
       lastAction = null;
     }
 
+    // Copy for SMS
+    function formatTodayCounts(){
+      const products = loadProducts();
+      const counts = loadCounts();
+      const dateLocal = warsawDateLabel();
+      const parts = products.map(p => `${p.name}: ${counts[p.id] || 0}`);
+      const emp = (localStorage.getItem(LS_EMP) || '').trim();
+      const who = emp ? ` (${emp})` : '';
+      const header = `Wyniki ${dateLocal}${who}:`;
+      const fmt = localStorage.getItem(LS_SMSFMT) || 'line';
+      if(fmt === 'multi'){
+        const NL = String.fromCharCode(10);
+        return [header, ...parts].join(NL);
+      } else {
+        return `${header} ${parts.join(', ')}`;
+      }
+    }
+    async function copyText(text){
+      try{
+        await navigator.clipboard.writeText(text);
+        showToast('Skopiowano wyniki do schowka.');
+      }catch(e){
+        const ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        try{ document.execCommand('copy'); showToast('Skopiowano wyniki do schowka.'); }
+        catch(err){ alert('Nie udało się skopiować.'); }
+        finally{ document.body.removeChild(ta); }
+      }
+    }
+
+    // Toast
+    function showToast(msg){
+      var el = document.getElementById('toast');
+      if(!el) return;
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 1800);
+    }
+
+    // Auto reset watcher (Europe/Warsaw), using stamp "YYYY-MM-DD HH:MM"
+    function startAutoResetWatcher(){
+      function tick(){
+        try{
+          const p = warsawParts();
+          const rt = (localStorage.getItem(LS_RESET_TIME) || '19:19').split(':');
+          const trgH = parseInt(rt[0],10)||19;
+          const trgM = parseInt(rt[1],10)||19;
+          const stamp = warsawISO() + ' ' + String(trgH).padStart(2,'0') + ':' + String(trgM).padStart(2,'0');
+          const last = localStorage.getItem(LS_AUTORESET) || '';
+          if(p.hh===trgH && p.mi===trgM && last !== stamp){
+            localStorage.setItem(LS_AUTORESET, stamp);
+            saveCounts({});
+            $('#today').text(warsawDateLabel());
+            renderGrid();
+            showToast('Automatyczne czyszczenie danych (' + String(trgH).padStart(2,'0') + ':' + String(trgM).padStart(2,'0') + ')');
+          }
+        }catch(e){ /* ignore */ }
+      }
+      tick();
+      window.__resetTimer = setInterval(tick, 10*1000);
+    }
+
+    // --- PWA Install ---
+    let __deferredPrompt = null;
+    function isStandalone(){
+      return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || (window.navigator.standalone === true);
+    }
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      __deferredPrompt = e;
+      $('#installBtn').show();
+    });
+    window.addEventListener('appinstalled', () => {
+      __deferredPrompt = null;
+      $('#installBtn').hide();
+      showToast('Zainstalowano aplikację');
+    });
+
+    // --- Events ---
+    $(function(){
+      // init
+      $('#today').text(warsawDateLabel());
+      $('#verSettings').text(APP_VERSION);
+      renderGrid();
+      startAutoResetWatcher();
+      updateModeUI();
+      if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js'); }
+      if(isStandalone()){ $('#installBtn').hide(); }
+
+      // mode toggle on chip (hold to enable subtract)
+      $(document).on('mousedown touchstart', '#modeToggle', function(){
+        if(mode === 'sub'){ mode = 'add'; updateModeUI(); return; }
+        holdTimer = setTimeout(()=>{
+          const saved = localStorage.getItem(LS_PIN) || '';
+          if(!saved || prompt('Podaj PIN, aby włączyć odejmowanie:') === saved){ mode='sub'; updateModeUI(); }
+          else { alert('Nieprawidłowy PIN.'); }
+        }, 1000);
+      }).on('mouseup mouseleave touchend touchcancel', '#modeToggle', function(){ clearTimeout(holdTimer); });
+
+      // keyboard access for chip
+      $(document).on('keydown', '#modeToggle', function(e){
+        if(e.key === 'Enter'){ if(mode === 'sub'){ mode='add'; updateModeUI(); } }
+        if(e.key === ' '){ e.preventDefault(); const ev = new Event('mousedown'); this.dispatchEvent(ev); }
+      });
+
+      // product tap
+      $(document).on('click', '.product-card', function(){ const id = $(this).data('id'); bump(id); });
+      // undo
+      $(document).on('click', '#quickUndo', undo);
+
+      $(document).on('click', '#menuBtn', function(){ document.getElementById('navDlg').showModal(); });
+
+      // settings open
+      $(document).on('click', '#settingsBtn', function(){
+        renderSettings();
+        $('#pin').val('');
+        document.getElementById('settingsDlg').showModal();
+      });
+
+      // settings save / cancel
+      $(document).on('click', '#settingsSave', function(){ document.getElementById('settingsDlg').close(); showToast('Zapisano zmiany'); });
+      // add product
+      $(document).on('click', '#addProduct', function(){
+        const name = $('#newName').val().trim();
+        const color = $('#newColor').val();
+        if(!name){ alert('Podaj nazwę produktu.'); return; }
+        const products = loadProducts();
+        products.push({id: crypto.randomUUID(), name, color});
+        saveProducts(products);
+        $('#newName').val('');
+        renderSettings();
+        renderGrid();
+      });
+      $(document).on('keydown', '#newName', function(e){ if(e.key === 'Enter'){ e.preventDefault(); $('#addProduct').trigger('click'); } });
+
+      // edit/delete product
+      $(document).on('input', '.item .p-name', function(){
+        const id = $(this).closest('.item').data('id');
+        const products = loadProducts();
+        const p = products.find(x => x.id === id);
+        if(p){ p.name = this.value; saveProducts(products); renderGrid(); }
+      });
+      $(document).on('input', '.item .p-color', function(){
+        const id = $(this).closest('.item').data('id');
+        const products = loadProducts();
+        const p = products.find(x => x.id === id);
+        if(p){ p.color = this.value; saveProducts(products); renderGrid(); }
+      });
+      $(document).on('click', '.item .p-del', function(){
+        const id = $(this).closest('.item').data('id');
+        const products = loadProducts().filter(x => x.id !== id);
+        saveProducts(products); renderSettings(); renderGrid();
+      });
+
+      // pin save
+      $(document).on('click', '#savePin', function(){
+        const v = $('#pin').val(); if(v && v.length < 4){ alert('PIN min. 4 znaki.'); return; }
+        localStorage.setItem(LS_PIN, v || ''); showToast(v ? 'PIN zapisany.' : 'PIN usunięty.');
+      });
+
+      // admin unlock reset time
+      $(document).on('click', '#unlockReset', function(){
+        const p = prompt('Podaj PIN administratora, aby zmienić godzinę resetu:');
+        if(p === '9797'){ $('#resetTime').prop('disabled', false); showToast('Tryb admina odblokowany.'); }
+        else if(p !== null){ alert('Nieprawidłowy PIN.'); }
+      });
+      $(document).on('change', '#resetTime', function(){
+        const v = (this.value || '').trim();
+        const ok = /^([01]\d|2[0-3]):([0-5]\d)$/.test(v);
+        if(!ok){ alert('Podaj godzinę w formacie HH:MM (00-23 : 00-59).'); return; }
+        localStorage.setItem(LS_RESET_TIME, v);
+        showToast('Godzina resetu: ' + v);
+      });
+
+      // SMS format
+      $(document).on('change', '#smsFormatSelect', function(){ localStorage.setItem(LS_SMSFMT, this.value); });
+
+      // copy
+      $(document).on('click', '#copyBtn', function(){ copyText(formatTodayCounts()); });
+
+      // export/import (kept but hidden)
+      $(document).on('click', '#exportBtn', function(){ if(confirm('Eksportować WSZYSTKIE dni do CSV? (OK=wszystkie, Anuluj=tylko dziś)')) exportCSV(true); else exportCSV(false); });
+      $(document).on('change', '#importFile', function(){ if(this.files && this.files[0]) importCSV(this.files[0]); this.value=''; });
+
+      // install button
+      $(document).on('click', '#installBtn', async function(){
+        if(isStandalone()){ $(this).hide(); return; }
+        if(!__deferredPrompt){ document.getElementById('installHelpDlg').showModal(); return; }
+        __deferredPrompt.prompt();
+        try{
+          const choice = await __deferredPrompt.userChoice;
+          if(choice && choice.outcome === 'accepted'){ showToast('Instalacja rozpoczęta'); }
+          else { showToast('Instalacja anulowana'); }
+        } catch(err){}
+        __deferredPrompt = null;
+        $('#installBtn').hide();
+      });
+
+      // reset day button (manual)
+      $(document).on('click', '#resetDay', function(){
+        if(confirm('Rozpocząć nowy dzień? Bieżące liczniki zostaną wyzerowane (archiwum pozostanie pod poprzednią datą).')){
+          $('#today').text(warsawDateLabel());
+          saveCounts({});
+          renderGrid();
+        }
+      });
+    });
+
+    // Export/Import helpers (kept for completeness)
     function exportCSV(all=false){
       const products = loadProducts();
       const pMap = Object.fromEntries(products.map(p=>[p.id,p]));
       const rows = [];
-      const dates = all ? allDates().slice().reverse() : [new Date().toISOString().slice(0,10)];
-      dates.forEach(d => {
-        const c = loadCounts(d);
+      const d = warsawISO();
+      const dates = all ? Object.keys(localStorage).filter(k=>k.startsWith('sc_counts_')).map(k=>k.replace('sc_counts_','')).sort().reverse().slice().reverse() : [d];
+      dates.forEach(date => {
+        const c = loadCounts(date);
         Object.keys(c).forEach(id => {
           const p = pMap[id] || {name:'(usunięty)'};
-          rows.push([d, p.name, c[id]]);
+          rows.push([date, p.name, c[id]]);
         });
       });
       const header = "date,product,count\n";
@@ -260,11 +584,12 @@
       const blob = new Blob([header+body], {type: 'text/csv;charset=utf-8;'});
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = (all?'sales_all':'sales_'+dates[0]) + '.csv';
+      const ver = (typeof APP_VERSION!=='undefined' ? APP_VERSION : '');
+      const base = all ? `sales_all_v${ver}` : `sales_${d}_v${ver}`;
+      a.download = base + '.csv';
       a.click();
       URL.revokeObjectURL(a.href);
     }
-
     function importCSV(file){
       const reader = new FileReader();
       reader.onload = () => {
@@ -292,163 +617,6 @@
       };
       reader.readAsText(file);
     }
-
-    function renderHistory(){
-      const dates = allDates();
-      const $list = $('#historyList').empty();
-      const products = loadProducts();
-      const pMap = Object.fromEntries(products.map(p=>[p.id,p]));
-      dates.forEach(d => {
-        const map = loadCounts(d);
-        const sum = Object.values(map).reduce((a,b)=>a+(b||0),0);
-        const $row = $(`
-          <div class="item">
-            <span class="badge">📅 ${d}</span>
-            <span class="small">Razem: <b>${sum}</b></span>
-            <span class="spacer"></span>
-            <button class="btn ghost exp-date" data-date="${d}">Eksportuj</button>
-          </div>
-        `);
-        $list.append($row);
-        Object.keys(map).forEach(id => {
-          const p = pMap[id] || {name:'(usunięty)', color:'#9AA0A6'};
-          const $d = $(`
-            <div class="item" style="margin-left:18px;">
-              <span>${p.name}</span>
-              <span class="count" style="margin-left:auto">${map[id]}</span>
-            </div>
-          `);
-          $list.append($d);
-        });
-      });
-    }
-
-    function requestPinOk(){
-      const saved = localStorage.getItem(LS_PIN) || '';
-      if(!saved) return true;
-      const entered = prompt('Podaj PIN, aby włączyć odejmowanie:');
-      return entered === saved;
-    }
-
-    function applySize(){
-      const large = localStorage.getItem(LS_SIZE)==='1';
-      document.getElementById('app').classList.toggle('lg', large);
-    }
-
-    // --- Events ---
-    $(function(){
-      // init
-      $('#today').text(new Date().toLocaleDateString());
-      $('#verSettings').text(APP_VERSION);
-      applySize();
-      renderGrid();
-      updateModeUI();
-      if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js'); }
-
-      // mode toggle (hold to enable subtract)
-      $(document).on('mousedown touchstart', '#toggleMode', function(){
-        if(mode === 'sub'){ mode = 'add'; updateModeUI(); return; }
-        holdTimer = setTimeout(()=>{
-          if(requestPinOk()){ mode='sub'; updateModeUI(); }
-          else { alert('Nieprawidłowy PIN.'); }
-        }, holdMs);
-      }).on('mouseup mouseleave touchend touchcancel', '#toggleMode', function(){ clearTimeout(holdTimer); });
-
-      // product tap
-      $(document).on('click', '.product-card', function(){
-        const id = $(this).data('id');
-        bump(id);
-      });
-
-      // undo
-      $(document).on('click', '#quickUndo', undo);
-
-      // settings open
-      $(document).on('click', '#settingsBtn', function(){
-        renderSettings();
-        $('#pin').val('');
-        document.getElementById('settingsDlg').showModal();
-      });
-
-      // add product
-      $(document).on('click', '#addProduct', function(){
-        const name = $('#newName').val().trim();
-        const color = $('#newColor').val();
-        if(!name){ alert('Podaj nazwę produktu.'); return; }
-        const products = loadProducts();
-        products.push({id: crypto.randomUUID(), name, color});
-        saveProducts(products);
-        $('#newName').val('');
-        renderSettings();
-        renderGrid();
-      });
-      $(document).on('keydown', '#newName', function(e){
-        if(e.key === 'Enter'){ e.preventDefault(); $('#addProduct').trigger('click'); }
-      });
-
-      // edit/delete product (delegated)
-      $(document).on('input', '.item .p-name', function(){
-        const id = $(this).closest('.item').data('id');
-        const products = loadProducts();
-        const p = products.find(x => x.id === id);
-        if(p){ p.name = this.value; saveProducts(products); renderGrid(); }
-      });
-      $(document).on('input', '.item .p-color', function(){
-        const id = $(this).closest('.item').data('id');
-        const products = loadProducts();
-        const p = products.find(x => x.id === id);
-        if(p){ p.color = this.value; saveProducts(products); renderGrid(); }
-      });
-      $(document).on('click', '.item .p-del', function(){
-        const id = $(this).closest('.item').data('id');
-        const products = loadProducts().filter(x => x.id !== id);
-        saveProducts(products); renderSettings(); renderGrid();
-      });
-
-      // pin save
-      $(document).on('click', '#savePin', function(){
-        const v = $('#pin').val(); if(v && v.length < 4){ alert('PIN min. 4 znaki.'); return; }
-        localStorage.setItem(LS_PIN, v || ''); alert(v ? 'PIN zapisany.' : 'PIN usunięty.');
-      });
-
-      // large tiles toggle
-      $(document).on('click', '#toggleSize', function(){
-        const curr = localStorage.getItem(LS_SIZE)==='1';
-        localStorage.setItem(LS_SIZE, curr ? '0' : '1'); applySize();
-        $('#sizeState').text(!curr ? 'Włączone' : 'Wyłączone');
-      });
-
-      // history
-      $(document).on('click', '#historyBtn', function(){ renderHistory(); document.getElementById('historyDlg').showModal(); });
-      $(document).on('click', '.exp-date', function(){
-        const d = $(this).data('date');
-        const products = loadProducts();
-        const pMap = Object.fromEntries(products.map(p=>[p.id,p]));
-        const c = loadCounts(d);
-        const rows = [];
-        Object.keys(c).forEach(id => {
-          const p = pMap[id] || {name:'(usunięty)'};
-          rows.push([d, p.name, c[id]]);
-        });
-        const header = "date,product,count\n";
-        const body = rows.map(r => r.map(x => (''+x).replaceAll('"','""')).join(',')).join('\n');
-        const blob = new Blob([header+body], {type: 'text/csv;charset=utf-8;'});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'sales_'+d+'.csv'; a.click(); URL.revokeObjectURL(a.href);
-      });
-
-      // export/import
-      $(document).on('click', '#exportBtn', function(){ if(confirm('Eksportować WSZYSTKIE dni do CSV? (OK=wszystkie, Anuluj=tylko dziś)')) exportCSV(true); else exportCSV(false); });
-      $(document).on('change', '#importFile', function(){ if(this.files && this.files[0]) importCSV(this.files[0]); this.value=''; });
-
-      // reset day
-      $(document).on('click', '#resetDay', function(){
-        if(confirm('Rozpocząć nowy dzień? Bieżące liczniki zostaną wyzerowane (archiwum pozostanie pod poprzednią datą).')){
-          localStorage.setItem('sc_last_reset', new Date().toISOString());
-          $('#today').text(new Date().toLocaleDateString());
-          renderGrid();
-        }
-      });
-    });
   </script>
 </body>
 </html>

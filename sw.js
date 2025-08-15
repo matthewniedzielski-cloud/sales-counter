@@ -1,5 +1,5 @@
 
-const CACHE = 'sc-v2-r14';
+const CACHE = 'sc-1.0.4';
 const ASSETS = [
   './',
   './index.html',

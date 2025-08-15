@@ -1,7 +1,7 @@
 
 {
-  "name": "Sales Counter",
-  "short_name": "Counter",
+  "name": "Raport Dzienny",
+  "short_name": "Raport",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f7f7f8",
