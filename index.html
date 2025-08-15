@@ -10,52 +10,45 @@
   <link rel="icon" href="icons/icon-192.png" sizes="192x192">
   <style>
     :root{
-      --blue:#1a73e8; --green:#34a853; --red:#ea4335; --yellow:#fbbc05;
-      --bg:#f7f7f8; --card:#ffffff; --text:#202124; --muted:#5f6368; --shadow:0 8px 20px rgba(0,0,0,.08);
-      --radius:20px;
+      --bg:#f7f7f8; --card:#ffffff; --text:#202124; --muted:#5f6368;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);}
     .app{max-width:540px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
-    header{position:sticky;top:0;background:var(--card);padding:14px 16px;box-shadow:var(--shadow);z-index:2;border-bottom:1px solid #eee;display:flex;align-items:center;gap:10px}
+    header{position:sticky;top:0;background:var(--card);padding:14px 16px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:10px}
     header h1{font-size:1.25rem;margin:0;font-weight:700;letter-spacing:.2px}
-    .chip{margin-left:auto;display:flex;align-items:center;gap:8px;background:#eef3fd;color:var(--blue);padding:8px 12px;border-radius:999px;font-weight:600}
-    .chip button{all:unset;cursor:pointer;padding:2px 6px;border-radius:8px}
-    .lock{font-size:.9rem;color:var(--muted)}
-    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:16px}
-    .lg .grid{grid-template-columns:1fr}
-    .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;display:flex;flex-direction:column;gap:12px}
-    .product{display:flex;align-items:center;gap:12px;border-radius:16px;padding:20px;background:#fafafa;border:1px solid #eee;cursor:pointer;transition:transform .06s ease;font-size:1.05rem}
-    .lg .product{padding:26px;font-size:1.2rem}
-    .product:active{transform:scale(.99)}
-    .dot{width:16px;height:16px;border-radius:50%}
+    .chip{margin-left:auto;display:flex;align-items:center;gap:8px;background:#eef3fd;color:#1a73e8;padding:8px 12px;font-weight:600}
+    .chip button{all:unset;cursor:pointer;padding:2px 6px}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:0}
+    @media (max-width: 480px){ .grid{grid-template-columns:1fr} }
+    .card{cursor:pointer;background:var(--card);border:1px solid #eee;padding:16px;display:flex;flex-direction:column;gap:12px;aspect-ratio:1/1;justify-content:center}
+    .product{display:flex;align-items:center;gap:12px;font-size:1.05rem}
     .name{font-weight:700}
     .count{margin-left:auto;font-weight:800}
     .toolbar{position:sticky;bottom:0;background:var(--card);padding:12px 16px;border-top:1px solid #eee;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .btn{border:none;border-radius:14px;padding:14px 16px;font-weight:700;cursor:pointer;box-shadow:var(--shadow);}
-    .btn.primary{background:var(--blue);color:white}
-    .btn.secondary{background:#eef3fd;color:var(--blue)}
-    .btn.warn{background:#fde9ea;color:var(--red)}
+    .btn{border:none;padding:14px 16px;font-weight:700;cursor:pointer;background:#e0e0e0;color:var(--text)}
+    .btn.primary{background:#1a73e8;color:#fff}
+    .btn.secondary{background:#eef3fd;color:#1a73e8}
+    .btn.warn{background:#fde9ea;color:#ea4335}
     .btn.ghost{background:#f6f6f7;color:var(--text)}
     .spacer{flex:1}
-    .pill{padding:8px 12px;border-radius:999px;background:#f1f3f4;color:var(--muted);font-weight:600}
+    .pill{padding:8px 12px;background:#f1f3f4;color:var(--muted);font-weight:600}
     dialog::backdrop{background:rgba(32,33,36,.45)}
-    dialog{border:none;border-radius:20px;width:min(92vw,560px);box-shadow:var(--shadow);padding:0}
-    .sheet{padding:16px}
+    dialog{border:none;width:min(92vw,560px);padding:0}
+    .sheet{padding:16px;background:#fff}
     .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    input[type="text"], input[type="password"]{flex:1;border:1px solid #e0e0e0;border-radius:12px;padding:12px 14px;font-size:1rem}
-    select{border:1px solid #e0e0e0;border-radius:12px;padding:12px 14px;font-size:1rem}
+    input[type="text"], input[type="password"]{flex:1;border:1px solid #e0e0e0;padding:12px 14px;font-size:1rem}
+    input[type="color"], select{border:1px solid #e0e0e0;padding:10px 12px;font-size:1rem}
     .list{display:flex;flex-direction:column;gap:8px;margin-top:12px;max-height:38vh;overflow:auto}
-    .item{display:flex;align-items:center;gap:12px;border:1px solid #eee;border-radius:14px;padding:10px 12px;background:#fafafa}
+    .item{display:flex;align-items:center;gap:12px;border:1px solid #eee;padding:10px 12px;background:#fafafa}
     .item input{width:40%}
     .small{font-size:.85rem;color:var(--muted)}
-    .footer{display:flex;gap:10px;justify-content:flex-end;padding:12px 16px;border-top:1px solid #eee;background:#fff;border-bottom-left-radius:20px;border-bottom-right-radius:20px}
+    .footer{display:flex;gap:10px;justify-content:flex-end;padding:12px 16px;border-top:1px solid #eee;background:#fff}
     .hint{font-size:.9rem;color:var(--muted)}
-    .badge{font-size:.8rem;font-weight:700;padding:4px 8px;border-radius:999px}
-    .badge.add{background:#e6f4ea;color:var(--green)}
-    .badge.sub{background:#fde9ea;color:var(--red)}
-    .tools{display:flex;gap:10px;flex-wrap:wrap}
+    .badge{font-size:.8rem;font-weight:700;padding:4px 8px}
+    .badge.add{background:#e6f4ea;color:#34a853}
+    .badge.sub{background:#fde9ea;color:#ea4335}
   </style>
 </head>
 <body>
@@ -67,7 +60,6 @@
         <span id="modeLabel">Tryb: Dodawanie</span>
         <button id="toggleMode" title="Przełącz tryb (odejmowanie wymaga PIN + przytrzymanie)">➕/➖</button>
       </span>
-      <span class="lock small" id="lockHint">aby odjąć: PIN + przytrzymaj 1s</span>
     </header>
 
     <main class="grid" id="grid"></main>
@@ -93,19 +85,17 @@
         <h3 style="margin:6px 0 8px 0;">Produkty</h3>
         <div class="row">
           <input type="text" id="newName" placeholder="Nazwa produktu">
-          <select id="newColor" aria-label="Kolor">
-            <option value="#1a73e8">Niebieski</option>
-            <option value="#34a853">Zielony</option>
-            <option value="#ea4335">Czerwony</option>
-            <option value="#fbbc05">Żółty</option>
-            <option value="#9AA0A6">Szary</option>
-          </select>
+          <input type="color" id="newColor" value="#1a73e8" aria-label="Kolor">
           <button type="button" class="btn primary" id="addProduct">Dodaj</button>
         </div>
 
         <div class="list" id="productList"></div>
 
         <h3 style="margin:14px 0 6px 0;">Ustawienia</h3>
+        <div class="row">
+          <label class="small">Wersja aplikacji:</label>
+          <span id="verSettings" class="pill">v?</span>
+        </div>
         <div class="row">
           <label class="small">PIN do odejmowania:</label>
           <input type="password" id="pin" placeholder="(opcjonalny)">
@@ -140,12 +130,27 @@
 
   <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
   <script>
-    // --- Storage helpers ---
+    const APP_VERSION = 'v2-r14';
+
+    // --- Keys ---
     const LS_PRODUCTS = 'sc_products_v1';
     const LS_PIN = 'sc_pin_v1';
     const LS_SIZE = 'sc_large_tiles_v1';
     const countsKey = (dateStr) => 'sc_counts_' + (dateStr || new Date().toISOString().slice(0,10));
 
+    // --- Utils ---
+    function contrastColor(hex){
+      try{
+        const c = hex.replace('#','');
+        const r = parseInt(c.substring(0,2),16);
+        const g = parseInt(c.substring(2,4),16);
+        const b = parseInt(c.substring(4,6),16);
+        const lum = 0.2126*(r/255) + 0.7152*(g/255) + 0.0722*(b/255);
+        return lum > 0.6 ? '#202124' : '#ffffff';
+      }catch(e){ return '#202124'; }
+    }
+
+    // --- Data ---
     function loadProducts(){
       const raw = localStorage.getItem(LS_PRODUCTS);
       if(raw){ try { return JSON.parse(raw); } catch(e){} }
@@ -172,7 +177,7 @@
 
     // --- UI ---
     let mode = 'add'; // 'add' | 'sub'
-    let lastAction = null; // {id, delta}
+    let lastAction = null;
     const holdMs = 1000;
     let holdTimer = null;
 
@@ -182,15 +187,16 @@
       const $grid = $('#grid').empty();
       products.forEach(p => {
         const count = counts[p.id] || 0;
-        const $btn = $(`
-          <div class="product" data-id="\${p.id}" role="button" aria-label="\${p.name}">
-            <div class="dot" style="background:\${p.color}"></div>
-            <div class="name">\${p.name}</div>
-            <div class="count" id="count-\${p.id}">\${count}</div>
+        const fg = contrastColor(p.color);
+        const $card = $(`
+          <div class="card product-card" data-id="${p.id}" style="background:${p.color}; color:${fg}">
+            <div class="product" aria-label="${p.name}">
+              <div class="name">${p.name}</div>
+              <div class="count" id="count-${p.id}">${count}</div>
+            </div>
           </div>
         `);
-        $btn.on('click', () => bump(p.id));
-        $grid.append($('<div class="card">').append($btn));
+        $grid.append($card);
       });
     }
 
@@ -199,32 +205,21 @@
       const $list = $('#productList').empty();
       products.forEach((p, idx) => {
         const $row = $(`
-          <div class="item" data-id="\${p.id}">
-            <span class="badge add">#\${idx+1}</span>
-            <input type="text" value="\${p.name}" aria-label="Nazwa">
-            <input type="color" value="\${p.color}" title="Kolor">
-            <button class="btn warn">Usuń</button>
+          <div class="item" data-id="${p.id}">
+            <span class="badge add">#${idx+1}</span>
+            <input class="p-name" type="text" value="${p.name}" aria-label="Nazwa">
+            <input class="p-color" type="color" value="${p.color}" title="Kolor">
+            <button class="btn warn p-del">Usuń</button>
           </div>
         `);
-        $row.find('input[type="text"]').on('input', function(){
-          p.name = this.value; saveProducts(products); renderGrid();
-        });
-        $row.find('input[type="color"]').on('input', function(){
-          p.color = this.value; saveProducts(products); renderGrid();
-        });
-        $row.find('button').on('click', function(){
-          const updated = products.filter(x => x.id !== p.id);
-          saveProducts(updated); renderSettings(); renderGrid();
-        });
         $list.append($row);
       });
-
       $('#sizeState').text(localStorage.getItem(LS_SIZE)==='1' ? 'Włączone' : 'Wyłączone');
     }
 
     function updateModeUI(){
-      $('#modeLabel').text(mode === 'add' ? 'Tryb: Dodawanie' : 'Tryb: Odejmowanie');
-      $('#modeLabel').toggleClass('badge add', mode==='add').toggleClass('badge sub', mode==='sub');
+      $('#modeLabel').text(mode === 'add' ? 'Tryb: Dodawanie' : 'Tryb: Odejmowanie')
+        .toggleClass('badge add', mode==='add').toggleClass('badge sub', mode==='sub');
     }
 
     function bump(id){
@@ -237,7 +232,6 @@
       $('#count-'+id).text(next);
       lastAction = {id, delta: (next===curr?0:delta)};
     }
-
     function undo(){
       if(!lastAction || lastAction.delta === 0) return;
       const counts = loadCounts();
@@ -276,14 +270,13 @@
       reader.onload = () => {
         const text = reader.result;
         const lines = text.trim().split(/\r?\n/);
-        const idx_date = 0, idx_prod = 1, idx_cnt = 2;
         const products = loadProducts();
         let counts = loadCounts();
         lines.slice(1).forEach(line => {
           const parts = line.split(',');
           if(parts.length < 3) return;
-          const name = parts[idx_prod].trim().replace(/^"|"$/g,'');
-          const cnt = Math.max(0, parseInt(parts[idx_cnt],10)||0);
+          const name = parts[1].trim().replace(/^"|"$/g,'');
+          const cnt = Math.max(0, parseInt(parts[2],10)||0);
           let p = products.find(x => x.name.toLowerCase() === name.toLowerCase());
           if(!p){
             p = {id: crypto.randomUUID(), name, color:'#9AA0A6'};
@@ -310,40 +303,19 @@
         const sum = Object.values(map).reduce((a,b)=>a+(b||0),0);
         const $row = $(`
           <div class="item">
-            <span class="badge">📅 \${d}</span>
-            <span class="small">Razem: <b>\${sum}</b></span>
+            <span class="badge">📅 ${d}</span>
+            <span class="small">Razem: <b>${sum}</b></span>
             <span class="spacer"></span>
-            <button class="btn ghost">Eksportuj</button>
+            <button class="btn ghost exp-date" data-date="${d}">Eksportuj</button>
           </div>
         `);
-        $row.find('button').on('click', ()=> {
-          // export just this date
-          const products = loadProducts();
-          const pMap = Object.fromEntries(products.map(p=>[p.id,p]));
-          const c = loadCounts(d);
-          const rows = [];
-          Object.keys(c).forEach(id => {
-            const p = pMap[id] || {name:'(usunięty)'};
-            rows.push([d, p.name, c[id]]);
-          });
-          const header = "date,product,count\n";
-          const body = rows.map(r => r.map(x => (''+x).replaceAll('"','""')).join(',')).join('\n');
-          const blob = new Blob([header+body], {type: 'text/csv;charset=utf-8;'});
-          const a = document.createElement('a');
-          a.href = URL.createObjectURL(blob);
-          a.download = 'sales_'+d+'.csv';
-          a.click();
-          URL.revokeObjectURL(a.href);
-        });
         $list.append($row);
-
         Object.keys(map).forEach(id => {
           const p = pMap[id] || {name:'(usunięty)', color:'#9AA0A6'};
           const $d = $(`
             <div class="item" style="margin-left:18px;">
-              <div class="dot" style="background:\${p.color}"></div>
-              <span>\${p.name}</span>
-              <span class="count" style="margin-left:auto">\${map[id]}</span>
+              <span>${p.name}</span>
+              <span class="count" style="margin-left:auto">${map[id]}</span>
             </div>
           `);
           $list.append($d);
@@ -357,74 +329,125 @@
       const entered = prompt('Podaj PIN, aby włączyć odejmowanie:');
       return entered === saved;
     }
-    $('#toggleMode').on('mousedown touchstart', function(e){
-      if(mode === 'sub'){ mode = 'add'; updateModeUI(); return; }
-      holdTimer = setTimeout(()=>{
-        if(requestPinOk()){ mode='sub'; updateModeUI(); }
-        else { alert('Nieprawidłowy PIN.'); }
-      }, holdMs);
-    }).on('mouseup mouseleave touchend touchcancel', function(){
-      clearTimeout(holdTimer);
-    });
-
-    $('#quickUndo').on('click', undo);
-
-    $('#settingsBtn').on('click', function(){
-      renderSettings();
-      document.getElementById('settingsDlg').showModal();
-      $('#pin').val('');
-    });
-
-    $('#savePin').on('click', function(){
-      const v = $('#pin').val();
-      if(v && v.length < 4){ alert('PIN min. 4 cyfry/znaki.'); return; }
-      localStorage.setItem(LS_PIN, v || '');
-      alert(v ? 'PIN zapisany.' : 'PIN usunięty.');
-    });
-
-    $('#toggleSize').on('click', function(){
-      const curr = localStorage.getItem(LS_SIZE)==='1';
-      localStorage.setItem(LS_SIZE, curr ? '0' : '1');
-      applySize();
-      $('#sizeState').text(!curr ? 'Włączone' : 'Wyłączone');
-    });
-
-    $('#historyBtn').on('click', function(){
-      renderHistory();
-      document.getElementById('historyDlg').showModal();
-    });
-
-    $('#exportBtn').on('click', function(){
-      if(confirm('Eksportować WSZYSTKIE dni do CSV? (OK=wszystkie, Anuluj=tylko dziś)')) exportCSV(true); else exportCSV(false);
-    });
-
-    $('#importFile').on('change', function(){
-      if(this.files && this.files[0]) importCSV(this.files[0]);
-      this.value = '';
-    });
-
-    $('#resetDay').on('click', function(){
-      if(confirm('Rozpocząć nowy dzień? Bieżące liczniki zostaną wyzerowane (archiwum pozostanie pod poprzednią datą).')){
-        localStorage.setItem('sc_last_reset', new Date().toISOString());
-        $('#today').text(new Date().toLocaleDateString());
-        renderGrid();
-      }
-    });
 
     function applySize(){
       const large = localStorage.getItem(LS_SIZE)==='1';
       document.getElementById('app').classList.toggle('lg', large);
     }
 
-    // init
+    // --- Events ---
     $(function(){
+      // init
       $('#today').text(new Date().toLocaleDateString());
+      $('#verSettings').text(APP_VERSION);
+      applySize();
       renderGrid();
       updateModeUI();
-      applySize();
-      if('serviceWorker' in navigator){
-        navigator.serviceWorker.register('./sw.js');
-      }
+      if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js'); }
+
+      // mode toggle (hold to enable subtract)
+      $(document).on('mousedown touchstart', '#toggleMode', function(){
+        if(mode === 'sub'){ mode = 'add'; updateModeUI(); return; }
+        holdTimer = setTimeout(()=>{
+          if(requestPinOk()){ mode='sub'; updateModeUI(); }
+          else { alert('Nieprawidłowy PIN.'); }
+        }, holdMs);
+      }).on('mouseup mouseleave touchend touchcancel', '#toggleMode', function(){ clearTimeout(holdTimer); });
+
+      // product tap
+      $(document).on('click', '.product-card', function(){
+        const id = $(this).data('id');
+        bump(id);
+      });
+
+      // undo
+      $(document).on('click', '#quickUndo', undo);
+
+      // settings open
+      $(document).on('click', '#settingsBtn', function(){
+        renderSettings();
+        $('#pin').val('');
+        document.getElementById('settingsDlg').showModal();
+      });
+
+      // add product
+      $(document).on('click', '#addProduct', function(){
+        const name = $('#newName').val().trim();
+        const color = $('#newColor').val();
+        if(!name){ alert('Podaj nazwę produktu.'); return; }
+        const products = loadProducts();
+        products.push({id: crypto.randomUUID(), name, color});
+        saveProducts(products);
+        $('#newName').val('');
+        renderSettings();
+        renderGrid();
+      });
+      $(document).on('keydown', '#newName', function(e){
+        if(e.key === 'Enter'){ e.preventDefault(); $('#addProduct').trigger('click'); }
+      });
+
+      // edit/delete product (delegated)
+      $(document).on('input', '.item .p-name', function(){
+        const id = $(this).closest('.item').data('id');
+        const products = loadProducts();
+        const p = products.find(x => x.id === id);
+        if(p){ p.name = this.value; saveProducts(products); renderGrid(); }
+      });
+      $(document).on('input', '.item .p-color', function(){
+        const id = $(this).closest('.item').data('id');
+        const products = loadProducts();
+        const p = products.find(x => x.id === id);
+        if(p){ p.color = this.value; saveProducts(products); renderGrid(); }
+      });
+      $(document).on('click', '.item .p-del', function(){
+        const id = $(this).closest('.item').data('id');
+        const products = loadProducts().filter(x => x.id !== id);
+        saveProducts(products); renderSettings(); renderGrid();
+      });
+
+      // pin save
+      $(document).on('click', '#savePin', function(){
+        const v = $('#pin').val(); if(v && v.length < 4){ alert('PIN min. 4 znaki.'); return; }
+        localStorage.setItem(LS_PIN, v || ''); alert(v ? 'PIN zapisany.' : 'PIN usunięty.');
+      });
+
+      // large tiles toggle
+      $(document).on('click', '#toggleSize', function(){
+        const curr = localStorage.getItem(LS_SIZE)==='1';
+        localStorage.setItem(LS_SIZE, curr ? '0' : '1'); applySize();
+        $('#sizeState').text(!curr ? 'Włączone' : 'Wyłączone');
+      });
+
+      // history
+      $(document).on('click', '#historyBtn', function(){ renderHistory(); document.getElementById('historyDlg').showModal(); });
+      $(document).on('click', '.exp-date', function(){
+        const d = $(this).data('date');
+        const products = loadProducts();
+        const pMap = Object.fromEntries(products.map(p=>[p.id,p]));
+        const c = loadCounts(d);
+        const rows = [];
+        Object.keys(c).forEach(id => {
+          const p = pMap[id] || {name:'(usunięty)'};
+          rows.push([d, p.name, c[id]]);
+        });
+        const header = "date,product,count\n";
+        const body = rows.map(r => r.map(x => (''+x).replaceAll('"','""')).join(',')).join('\n');
+        const blob = new Blob([header+body], {type: 'text/csv;charset=utf-8;'});
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'sales_'+d+'.csv'; a.click(); URL.revokeObjectURL(a.href);
+      });
+
+      // export/import
+      $(document).on('click', '#exportBtn', function(){ if(confirm('Eksportować WSZYSTKIE dni do CSV? (OK=wszystkie, Anuluj=tylko dziś)')) exportCSV(true); else exportCSV(false); });
+      $(document).on('change', '#importFile', function(){ if(this.files && this.files[0]) importCSV(this.files[0]); this.value=''; });
+
+      // reset day
+      $(document).on('click', '#resetDay', function(){
+        if(confirm('Rozpocząć nowy dzień? Bieżące liczniki zostaną wyzerowane (archiwum pozostanie pod poprzednią datą).')){
+          localStorage.setItem('sc_last_reset', new Date().toISOString());
+          $('#today').text(new Date().toLocaleDateString());
+          renderGrid();
+        }
+      });
     });
   </script>
 </body>
