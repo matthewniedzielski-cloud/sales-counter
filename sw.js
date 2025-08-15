@@ -1,5 +1,5 @@
 
-const CACHE = 'sc-1.0.4';
+const CACHE = 'sc-1.0.7';
 const ASSETS = [
   './',
   './index.html',
