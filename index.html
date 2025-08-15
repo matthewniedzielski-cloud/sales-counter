@@ -1,0 +1,255 @@
+
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Sales Counter</title>
+  <meta name="theme-color" content="#1a73e8">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png" sizes="192x192">
+  <style>
+    :root{
+      --blue:#1a73e8; --green:#34a853; --red:#ea4335; --yellow:#fbbc05;
+      --bg:#f7f7f8; --card:#ffffff; --text:#202124; --muted:#5f6368; --shadow:0 8px 20px rgba(0,0,0,.08);
+      --radius:20px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);}
+    .app{max-width:540px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
+    header{position:sticky;top:0;background:var(--card);padding:14px 16px;box-shadow:var(--shadow);z-index:2;border-bottom:1px solid #eee;display:flex;align-items:center;gap:10px}
+    header h1{font-size:1.25rem;margin:0;font-weight:700;letter-spacing:.2px}
+    .chip{margin-left:auto;display:flex;align-items:center;gap:8px;background:#eef3fd;color:var(--blue);padding:8px 12px;border-radius:999px;font-weight:600}
+    .chip button{all:unset;cursor:pointer;padding:2px 6px;border-radius:8px}
+    .lock{font-size:.9rem;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:16px}
+    .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;display:flex;flex-direction:column;gap:12px}
+    .product{display:flex;align-items:center;gap:12px;border-radius:16px;padding:16px;background:#fafafa;border:1px solid #eee;cursor:pointer;transition:transform .06s ease}
+    .product:active{transform:scale(.99)}
+    .dot{width:16px;height:16px;border-radius:50%}
+    .name{font-weight:700}
+    .count{margin-left:auto;font-weight:800}
+    .toolbar{position:sticky;bottom:0;background:var(--card);padding:12px 16px;border-top:1px solid #eee;display:flex;gap:10px;align-items:center}
+    .btn{border:none;border-radius:14px;padding:14px 16px;font-weight:700;cursor:pointer;box-shadow:var(--shadow);}
+    .btn.primary{background:var(--blue);color:white}
+    .btn.secondary{background:#eef3fd;color:var(--blue)}
+    .btn.warn{background:#fde9ea;color:var(--red)}
+    .btn.ghost{background:#f6f6f7;color:var(--text)}
+    .spacer{flex:1}
+    .pill{padding:8px 12px;border-radius:999px;background:#f1f3f4;color:var(--muted);font-weight:600}
+    dialog::backdrop{background:rgba(32,33,36,.45)}
+    dialog{border:none;border-radius:20px;width:min(92vw,520px);box-shadow:var(--shadow);padding:0}
+    .sheet{padding:16px}
+    .row{display:flex;gap:10px;align-items:center}
+    input[type="text"]{flex:1;border:1px solid #e0e0e0;border-radius:12px;padding:12px 14px;font-size:1rem}
+    select{border:1px solid #e0e0e0;border-radius:12px;padding:12px 14px;font-size:1rem}
+    .list{display:flex;flex-direction:column;gap:8px;margin-top:12px;max-height:40vh;overflow:auto}
+    .item{display:flex;align-items:center;gap:12px;border:1px solid #eee;border-radius:14px;padding:10px 12px;background:#fafafa}
+    .item input{width:40%}
+    .small{font-size:.85rem;color:var(--muted)}
+    .footer{display:flex;gap:10px;justify-content:flex-end;padding:12px 16px;border-top:1px solid #eee;background:#fff;border-bottom-left-radius:20px;border-bottom-right-radius:20px}
+    .hint{font-size:.9rem;color:var(--muted)}
+    .badge{font-size:.8rem;font-weight:700;padding:4px 8px;border-radius:999px}
+    .badge.add{background:#e6f4ea;color:var(--green)}
+    .badge.sub{background:#fde9ea;color:var(--red)}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Sales Counter</h1>
+      <span id="today" class="pill">--</span>
+      <span class="chip">
+        <span id="modeLabel">Tryb: Dodawanie</span>
+        <button id="toggleMode" title="Przełącz tryb (odejmowanie wymaga przytrzymania)">➕/➖</button>
+      </span>
+      <span class="lock small" id="lockHint">aby odjąć: przytrzymaj 1s</span>
+    </header>
+
+    <main class="grid" id="grid"></main>
+
+    <section class="toolbar">
+      <button class="btn secondary" id="quickUndo">Cofnij</button>
+      <span class="spacer"></span>
+      <button class="btn ghost" id="settingsBtn">Ustawienia</button>
+      <button class="btn primary" id="resetDay">Nowy dzień</button>
+    </section>
+  </div>
+
+  <dialog id="settingsDlg">
+    <form method="dialog">
+      <div class="sheet">
+        <h3 style="margin:6px 0 8px 0;">Produkty</h3>
+        <div class="row">
+          <input type="text" id="newName" placeholder="Nazwa produktu">
+          <select id="newColor" aria-label="Kolor">
+            <option value="#1a73e8">Niebieski</option>
+            <option value="#34a853">Zielony</option>
+            <option value="#ea4335">Czerwony</option>
+            <option value="#fbbc05">Żółty</option>
+            <option value="#9AA0A6">Szary</option>
+          </select>
+          <button type="button" class="btn primary" id="addProduct">Dodaj</button>
+        </div>
+        <div class="list" id="productList"></div>
+        <p class="hint">Zmiany zapisują się automatycznie (localStorage). Liczniki są dzienne.</p>
+      </div>
+      <div class="footer">
+        <button class="btn ghost" value="cancel">Zamknij</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  <script>
+    // --- Storage helpers ---
+    const LS_PRODUCTS = 'sc_products_v1';
+    const countsKey = () => 'sc_counts_' + new Date().toISOString().slice(0,10);
+
+    function loadProducts(){
+      const raw = localStorage.getItem(LS_PRODUCTS);
+      if(raw){ try { return JSON.parse(raw); } catch(e){} }
+      // default demo items
+      const demo = [
+        {id: crypto.randomUUID(), name:'Produkt A', color:'#1a73e8'},
+        {id: crypto.randomUUID(), name:'Produkt B', color:'#34a853'},
+        {id: crypto.randomUUID(), name:'Produkt C', color:'#ea4335'},
+        {id: crypto.randomUUID(), name:'Produkt D', color:'#fbbc05'}
+      ];
+      localStorage.setItem(LS_PRODUCTS, JSON.stringify(demo));
+      return demo;
+    }
+    function saveProducts(list){ localStorage.setItem(LS_PRODUCTS, JSON.stringify(list)); }
+
+    function loadCounts(){
+      const raw = localStorage.getItem(countsKey());
+      return raw ? JSON.parse(raw) : {};
+    }
+    function saveCounts(map){ localStorage.setItem(countsKey(), JSON.stringify(map)); }
+
+    // --- UI ---
+    let mode = 'add'; // 'add' | 'sub'
+    let lastAction = null; // {id, delta}
+    const holdMs = 1000;
+    let holdTimer = null;
+
+    function renderGrid(){
+      const products = loadProducts();
+      const counts = loadCounts();
+      const $grid = $('#grid').empty();
+      products.forEach(p => {
+        const count = counts[p.id] || 0;
+        const $btn = $(`
+          <div class="product" data-id="\${p.id}" role="button" aria-label="\${p.name}">
+            <div class="dot" style="background:\${p.color}"></div>
+            <div class="name">\${p.name}</div>
+            <div class="count" id="count-\${p.id}">\${count}</div>
+          </div>
+        `);
+        $btn.on('click', () => bump(p.id));
+        $grid.append($('<div class="card">').append($btn));
+      });
+    }
+
+    function renderSettings(){
+      const products = loadProducts();
+      const $list = $('#productList').empty();
+      products.forEach((p, idx) => {
+        const $row = $(`
+          <div class="item" data-id="\${p.id}">
+            <span class="badge add">#\${idx+1}</span>
+            <input type="text" value="\${p.name}" aria-label="Nazwa">
+            <input type="color" value="\${p.color}" title="Kolor">
+            <button class="btn warn">Usuń</button>
+          </div>
+        `);
+        $row.find('input[type="text"]').on('input', function(){
+          p.name = this.value; saveProducts(products); renderGrid();
+        });
+        $row.find('input[type="color"]').on('input', function(){
+          p.color = this.value; saveProducts(products); renderGrid();
+        });
+        $row.find('button').on('click', function(){
+          const updated = products.filter(x => x.id !== p.id);
+          saveProducts(updated); renderSettings(); renderGrid();
+        });
+        $list.append($row);
+      });
+    }
+
+    function updateModeUI(){
+      $('#modeLabel').text(mode === 'add' ? 'Tryb: Dodawanie' : 'Tryb: Odejmowanie');
+      $('#modeLabel').toggleClass('badge add', mode==='add').toggleClass('badge sub', mode==='sub');
+    }
+
+    function bump(id){
+      const counts = loadCounts();
+      const curr = counts[id] || 0;
+      const delta = (mode === 'add') ? 1 : -1;
+      const next = Math.max(0, curr + delta);
+      counts[id] = next;
+      saveCounts(counts);
+      $('#count-'+id).text(next);
+      lastAction = {id, delta: (next===curr?0:delta)};
+    }
+
+    function undo(){
+      if(!lastAction || lastAction.delta === 0) return;
+      const counts = loadCounts();
+      const curr = counts[lastAction.id] || 0;
+      const next = Math.max(0, curr - lastAction.delta);
+      counts[lastAction.id] = next;
+      saveCounts(counts);
+      $('#count-'+lastAction.id).text(next);
+      lastAction = null;
+    }
+
+    // hold-to-enable subtract
+    $('#toggleMode').on('mousedown touchstart', function(e){
+      if(mode === 'sub'){ mode = 'add'; updateModeUI(); return; }
+      holdTimer = setTimeout(()=>{ mode='sub'; updateModeUI(); }, holdMs);
+    }).on('mouseup mouseleave touchend touchcancel', function(){
+      clearTimeout(holdTimer);
+    });
+
+    $('#quickUndo').on('click', undo);
+
+    $('#settingsBtn').on('click', function(){
+      renderSettings();
+      document.getElementById('settingsDlg').showModal();
+    });
+
+    $('#addProduct').on('click', function(){
+      const name = $('#newName').val().trim();
+      const color = $('#newColor').val();
+      if(!name) return;
+      const products = loadProducts();
+      products.push({id: crypto.randomUUID(), name, color});
+      saveProducts(products);
+      $('#newName').val('');
+      renderSettings();
+      renderGrid();
+    });
+
+    $('#resetDay').on('click', function(){
+      if(confirm('Rozpocząć nowy dzień? Bieżące liczniki zostaną wyzerowane (archiwum w localStorage pozostanie w poprzednim kluczu daty).')){
+        localStorage.setItem('sc_last_reset', new Date().toISOString());
+        // Do nothing else; countsKey() is date-based, so a new date means fresh counts.
+        $('#today').text(new Date().toLocaleDateString());
+        renderGrid();
+      }
+    });
+
+    // init
+    $(function(){
+      $('#today').text(new Date().toLocaleDateString());
+      renderGrid();
+      updateModeUI();
+      if('serviceWorker' in navigator){
+        navigator.serviceWorker.register('./sw.js');
+      }
+    });
+  </script>
+</body>
+</html>
