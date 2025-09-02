@@ -143,7 +143,7 @@
         </div>
         <div class="row">
           <label class="small">Godzina resetu (admin):</label>
-          <input type="time" id="resetTime" value="19:19" disabled>
+          <input type="time" id="resetTime" value="22:05" disabled>
           <button type="button" class="btn secondary" id="unlockReset">Odblokuj</button>
         </div>
         <div class="row">
@@ -334,7 +334,7 @@
       // preload settings values
       $('#empName').val(localStorage.getItem(LS_EMP) || '');
       $('#smsFormatSelect').val(localStorage.getItem(LS_SMSFMT) || 'line');
-      $('#resetTime').val(localStorage.getItem(LS_RESET_TIME) || '19:19').prop('disabled', true);
+      $('#resetTime').val(localStorage.getItem(LS_RESET_TIME) || '22:05').prop('disabled', true);
     }
 
     function updateModeUI(){
@@ -409,7 +409,7 @@
       function tick(){
         try{
           const p = warsawParts();
-          const rt = (localStorage.getItem(LS_RESET_TIME) || '19:19').split(':');
+          const rt = (localStorage.getItem(LS_RESET_TIME) || '22:05').split(':');
           const trgH = parseInt(rt[0],10)||19;
           const trgM = parseInt(rt[1],10)||19;
           const stamp = warsawISO() + ' ' + String(trgH).padStart(2,'0') + ':' + String(trgM).padStart(2,'0');
